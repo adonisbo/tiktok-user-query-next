@@ -10,11 +10,11 @@ interface UserStats {
   likesCount: string;
 }
 
-// 定义API错误响应的类型
-interface ApiResponseError {
-  code: string;
-  message: string;
-}
+// 修复: 移除未使用的 ApiResponseError 类型定义
+// interface ApiResponseError {
+//   code: string;
+//   message: string;
+// }
 
 export default function Home() {
   const [tiktokUserId, setTiktokUserId] = useState<string>('');
@@ -56,9 +56,13 @@ export default function Home() {
         const errorMessage = result.error?.message || '未知错误发生';
         setError(`查询出错: ${errorMessage}`);
       }
-    } catch (err: any) {
+    } catch (err: unknown) { // 修复: 'any' 替换为 'unknown'
       console.error('[Frontend] Fetch error:', err);
-      setError(`网络或服务器连接错误: ${err.message}`);
+      let errorMessage = '网络或服务器连接错误';
+      if (err instanceof Error) { // 安全地访问 error.message
+        errorMessage += `: ${err.message}`;
+      }
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

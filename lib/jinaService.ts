@@ -1,5 +1,5 @@
 // lib/jinaService.ts
-import axios from 'axios'; 
+import axios from 'axios';
 
 const JINA_SIMPLE_READER_URL = 'https://r.jina.ai/';
 
@@ -20,7 +20,7 @@ export const fetchTikTokUserProfile = async (tiktokUserId: string, jinaApiKey: s
 
     const tiktokUrl = encodeURI(`https://www.tiktok.com/@${tiktokUserId}`);
     console.log(`[jinaService] Constructed TikTok URL: ${tiktokUrl}`);
-    
+
     const headers = {
       'Authorization': `Bearer ${jinaApiKey}`,
       'X-Return-Format': 'markdown',
@@ -33,15 +33,15 @@ export const fetchTikTokUserProfile = async (tiktokUserId: string, jinaApiKey: s
       url: tiktokUrl
     };
     console.log('[jinaService] Request Body for Jina:', JSON.stringify(requestBody, null, 2));
-    
+
     const axiosConfig = {
       headers,
       timeout: 45000, // 45秒超时
       validateStatus: (status: number) => status >= 200 && status < 300 // 只接受2xx状态码为成功
     };
-    
+
     const response = await axios.post(JINA_SIMPLE_READER_URL, requestBody, axiosConfig);
-    
+
     console.log('[jinaService] Jina API Response Status:', response.status);
     // console.log('[jinaService] Full Jina API Response Data:', JSON.stringify(response.data, null, 2)); // 可用于调试
 
@@ -49,12 +49,12 @@ export const fetchTikTokUserProfile = async (tiktokUserId: string, jinaApiKey: s
       console.error('[jinaService] Invalid or empty content in Jina AI Reader API response. Full response data:', response?.data);
       throw new Error('从Jina AI Reader API返回的Markdown内容为空或无效 (期望 response.data.data.content 包含Markdown)');
     }
-    
-    console.log('[jinaService] Successfully fetched and received markdown content.');
-    return response.data.data.content; 
 
-  } catch (error: any) { // 捕获任何类型的错误
-    let errorMessage = `获取TikTok用户资料失败: ${error.message}`;
+    console.log('[jinaService] Successfully fetched and received markdown content.');
+    return response.data.data.content;
+
+  } catch (error: unknown) { // 修复: 'any' 替换为 'unknown'
+    let errorMessage = `获取TikTok用户资料失败: ${error instanceof Error ? error.message : String(error)}`; // 修复: 安全地访问 error.message
     if (axios.isAxiosError(error)) {
       console.error('[jinaService] Axios Error:', {
         message: error.message,
