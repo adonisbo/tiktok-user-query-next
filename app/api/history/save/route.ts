@@ -1,9 +1,8 @@
 // app/api/history/save/route.ts
-import { saveQueryToSupabase } from '@/lib/supabaseService'; // 使用 @ 别名
-import { createApiKeyIdentifier } from '@/lib/helpers';   // 使用 @ 别名
+import { saveQueryToSupabase } from '@/lib/supabaseService';
+import { createApiKeyIdentifier } from '@/lib/helpers';
 import { NextResponse } from 'next/server';
 
-// 处理 OPTIONS 请求，用于 CORS 预检
 export async function OPTIONS() {
     const response = NextResponse.json({}, { status: 200 });
     response.headers.set('Access-Control-Allow-Origin', '*');
@@ -12,11 +11,10 @@ export async function OPTIONS() {
     return response;
 }
 
-// 处理 POST 请求
 export async function POST(req: Request) {
     try {
         const {
-            jinaApiKey, // 需要Jina API Key来生成标识符
+            jinaApiKey,
             tiktokUserId,
             followingCount,
             followersCount,
@@ -41,31 +39,27 @@ export async function POST(req: Request) {
         const savedItem = await saveQueryToSupabase(
             jinaApiKeyIdentifier,
             tiktokUserId,
-            String(followingCount), // 确保是字符串
+            String(followingCount),
             String(followersCount),
             String(likesCount)
         );
 
         if (savedItem) {
             console.log('[API History Save] History item saved successfully:', savedItem);
-            return NextResponse.json({ success: true, data: savedItem }, { status: 201 }); // 201 Created
+            return NextResponse.json({ success: true, data: savedItem }, { status: 201 });
         } else {
             throw new Error('Supabase服务未能成功保存历史记录。');
         }
 
-    } catch (error: unknown) { // 修复: 'any' 替换为 'unknown'
-        console.error('[API History Save] Error saving history:', error); // 记录原始错误
+    } catch (error: unknown) {
+        console.error('[API History Save] Error saving history:', error);
         if (error instanceof Error) {
-            console.error(error.stack); // 打印堆栈信息
+            console.error(error.stack);
         }
 
-        let errorMessage = error instanceof Error ? error.message : String(error); // 修复: 安全地访问 error.message
-        let errorCode = 'SUPABASE_SAVE_ERROR';
-
-        // 可以根据 Supabase 错误对象进一步细化错误码，但通常通用错误已足够
-        // if (errorMessage.includes('Supabase specific error message')) {
-        //     errorCode = 'SPECIFIC_SUPABASE_ERROR';
-        // }
+        // 修复: 使用 const 声明 errorMessage 和 errorCode
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorCode = 'SUPABASE_SAVE_ERROR';
 
         return NextResponse.json({
             success: false,
