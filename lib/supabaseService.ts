@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 // Supabase 连接信息将从环境变量中读取
 // 在本地开发时，它们来自 .env.local 文件
 // 在Vercel线上部署时，它们来自Vercel项目配置的环境变量
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL; // 注意这里使用了 NEXT_PUBLIC_ 前缀
+const supabaseUrl = process.env.SUPABASE_URL; // 修复: 移除 NEXT_PUBLIC_ 前缀
 const supabaseKey = process.env.SUPABASE_SERVICE_KEY; // Service Role Key，不带 NEXT_PUBLIC_
 
 if (!supabaseUrl || !supabaseKey) {
@@ -60,8 +60,8 @@ export const saveQueryToSupabase = async (
         }
         console.log('[SupabaseService] History saved successfully to Supabase:', data);
         return data ? data[0] : null; // insert().select() 返回一个数组
-    } catch (err: unknown) { // 修复: 'any' 替换为 'unknown'
-        console.error('[SupabaseService] Exception when saving history:', err instanceof Error ? err.message : String(err)); // 修复: 安全地访问 error.message
+    } catch (err: unknown) {
+        console.error('[SupabaseService] Exception when saving history:', err instanceof Error ? err.message : String(err));
         return null;
     }
 };
@@ -91,8 +91,8 @@ export const getQueryHistoryFromSupabase = async (jinaApiKeyIdentifier: string):
         }
         console.log('[SupabaseService] History fetched successfully from Supabase:', data);
         return data;
-    } catch (err: unknown) { // 修复: 'any' 替换为 'unknown'
-        console.error('[SupabaseService] Exception when fetching history:', err instanceof Error ? err.message : String(err)); // 修复: 安全地访问 error.message
+    } catch (err: unknown) {
+        console.error('[SupabaseService] Exception when fetching history:', err instanceof Error ? err.message : String(err));
         return null;
     }
 };
